@@ -13,16 +13,16 @@ class TokenHandler(object):
         return (token is "+" or token is "-" or token is "*" or token is "/")
     
     def isConstant(self, token):
-        return re.match("\d+")
+        return re.match("\d+", token)
     
     def isComparisonOperator(self, token):
         return (token is "<" or token is ">" or token is "<=" or token is ">=" or token is "=" or token is "/=")
     
     def readTokenValue(self, token):
         if(self.isVariable(token)):
-            variablevalue = self.variables.get(token(0))
+            variablevalue = self.variables.get(token)
             if variablevalue == None:
-                raise ParserException("Variable " + token + " not declared.")
+                raise ParserException("Variable " + token + " not assigned.")
             return variablevalue
         
         elif(self.isConstant(token)):

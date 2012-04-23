@@ -1,5 +1,3 @@
-from Statement import Statement
-from TokenHandler import TokenHandler
 import VariableException
 
 class Assignment(Statement):

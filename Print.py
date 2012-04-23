@@ -1,17 +1,7 @@
-'''
-Created on Mar 12, 2012
-
-@author: DavidDeMar
-'''
-
 class Print(object):
-    '''
-    classdocs
-    '''
 
+    def __init__(self, tokens = []):
+        super(Print, self).__init__(tokens)
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def execute(self, skip):
         

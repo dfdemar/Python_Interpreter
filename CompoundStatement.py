@@ -1,13 +1,12 @@
-from Statement import Statement
 
 class CompoundStatement(Statement):
 
-    def __init__(self, tokens = []):
-        super(CompoundStatement, self).__init__(tokens)
+    def __init__(self, tokens = [], executedtokens = []):
+        super(CompoundStatement, self).__init__(tokens, executedtokens)
         
     def execute(self, skip):
-        statement = Statement(self.tokens)        
-        statement.matchToken("begin", self.tokens)
+        statement = Statement(self.tokens, executedtokens = [])        
+        statement.match("begin", self.tokens)
         currenttoken = statement.getCurrentToken()
         
         while currenttoken is not "end":

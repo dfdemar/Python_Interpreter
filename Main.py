@@ -1,4 +1,4 @@
-from ProgramStatement import ProgramStatement
+from Statement import ProgramStatement
 
 lines = []
 scan = open("C:/David/School/prog1.txt", "r")
