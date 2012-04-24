@@ -1,10 +1,11 @@
 from Statement import ProgramStatement
 
 lines = []
-scan = open("C:/David/School/prog1.txt", "r")
+scan = open("C:/David/School/prog3.txt", "r")
 
 for text in scan:
-    lines.extend(text.split())
+    lines.extend(text.lower().split())
+scan.close()
     
 tokens = []
     

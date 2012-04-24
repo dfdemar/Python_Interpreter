@@ -13,7 +13,7 @@ class TokenHandler(object):
         return (token is "+" or token is "-" or token is "*" or token is "/")
     
     def isConstant(self, token):
-        return re.match("\d+", token)
+        return re.match(r'\d+', token)
     
     def isComparisonOperator(self, token):
         return (token is "<" or token is ">" or token is "<=" or token is ">=" or token is "=" or token is "/=")

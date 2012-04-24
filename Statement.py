@@ -5,9 +5,6 @@ import VariableException
 
 class Statement(object):
 
-    #tokens = []
-    #executedtokens = []
-
     def __init__(self, tokens):
         self.tokens = tokens
         self.executedtokens = []
@@ -20,13 +17,17 @@ class Statement(object):
 
         t = TokenHandler()
         
-        if currenttoken == "print":
-            p = Print(tokens)
-            return p
+        if currenttoken == "begin":
+            s = CompoundStatement(tokens)
+            return s
         
         elif t.isVariable(currenttoken):
             a = Assignment(tokens)
             return a
+        
+        elif currenttoken == "print":
+            p = Print(tokens)
+            return p
         
         elif currenttoken == "if":
             i = IF(tokens)
@@ -36,20 +37,17 @@ class Statement(object):
             w = While(tokens)
             return w
         
-        elif currenttoken == "begin":
-            s = self.CompoundStatement(tokens)
-            return s
-        
         else:
-            raise ParserException('Reserved word \'end\' expected. Got ' + currenttoken + ' instead.')
+            raise ParserException('Reserved word \'end\' expected. Got \'' + currenttoken + '\' instead.')
         
 
-    def ConditionIsTrue(self, tokens = [], outcondition = []):
+    def ConditionIsTrue(self, tokens, outcondition):
+        t = TokenHandler()        
         currenttoken = tokens[0]
-        leftvalue = TokenHandler.readTokenValue(self, currenttoken)
-        outcondition.extend(currenttoken)
+        leftvalue = t.readTokenValue(currenttoken)
+        outcondition.append(currenttoken)
         self.match(currenttoken, tokens)
-        currenttoken = tokens(0)
+        currenttoken = tokens[0]
         
         if(currenttoken == "<"):
             return leftvalue < self.readBooleanTokens(outcondition, tokens, currenttoken)
@@ -72,16 +70,17 @@ class Statement(object):
         raise ParserException("Not a valid condition")
             
     def readBooleanTokens(self, outcondition, tokens, currenttoken):
-        outcondition.extend(currenttoken)
+        t = TokenHandler()
+        outcondition.append(currenttoken)
         self.match(currenttoken, tokens)
-        currenttoken = tokens(0)
-        rightvalue = TokenHandler.readTokenValue(self, currenttoken)
-        outcondition.extend(currenttoken)
+        currenttoken = tokens[0]
+        rightvalue = t.readTokenValue(currenttoken)
+        outcondition.append(currenttoken)
         self.match(currenttoken, tokens)
         return rightvalue;
         
     def match(self, token, matchtokens):
-        print("[%s]" % ', '.join(matchtokens))
+        #print("[%s]" % ', '.join(matchtokens))
         if token == matchtokens[0]:
             self.executedtokens.append(token)
             del matchtokens[0]
@@ -158,7 +157,7 @@ class Assignment(Statement):
         variablevalue = None
         if not skip:
             variablevalue = t.readTokenValue(currenttoken)
-            TokenHandler.variables = {variablebeingassigned:variablevalue}
+            TokenHandler.variables[variablebeingassigned] = variablevalue
         self.match(currenttoken, self.tokens)
         
         currenttoken = self.getCurrentToken()
@@ -169,7 +168,7 @@ class Assignment(Statement):
                 if not skip:
                     operand = t.readTokenValue(currenttoken)
                     variablevalue += operand
-                    t.variables.update(variablebeingassigned, variablevalue)
+                    TokenHandler.variables[variablebeingassigned] = variablevalue
                 self.match(currenttoken, self.tokens)
                 
             elif currenttoken == "-":
@@ -178,7 +177,7 @@ class Assignment(Statement):
                 if not skip:
                     operand = t.readTokenValue(currenttoken)
                     variablevalue -= operand
-                    t.variables.update(variablebeingassigned, variablevalue)
+                    TokenHandler.variables[variablebeingassigned] = variablevalue
                 self.match(currenttoken, self.tokens)
                 
             elif currenttoken == "*":
@@ -187,7 +186,7 @@ class Assignment(Statement):
                 if not skip:
                     operand = t.readTokenValue(currenttoken)
                     variablevalue *= operand
-                    t.variables.update(variablebeingassigned, variablevalue)
+                    TokenHandler.variables[variablebeingassigned] = variablevalue
                 self.match(currenttoken, self.tokens)          
                 
             elif currenttoken == "/":
@@ -196,7 +195,7 @@ class Assignment(Statement):
                 if not skip:
                     operand = t.readTokenValue(currenttoken)
                     variablevalue /= operand
-                    t.variables.update(variablebeingassigned, variablevalue)
+                    TokenHandler.variables[variablebeingassigned] = variablevalue
                 self.match(currenttoken, self.tokens)
                 
             currenttoken = self.getCurrentToken()
@@ -215,4 +214,83 @@ class Print(Statement):
         if not skip:
             print t.readTokenValue(nexttoken)
         self.match(nexttoken, self.tokens)
+        return self.resetTokens()
+    
+class IF(Statement):
+    
+    def __init__(self, tokens):
+        super(IF, self).__init__(tokens)
+        
+    def execute(self, skip):
+        self.match("if", self.tokens)
+        currenttoken = self.getCurrentToken()
+        
+        if(skip):
+            while(currenttoken != "else"):
+                self.match(currenttoken, self.tokens)
+                currenttoken = self.getCurrentToken()
+            
+            self.match("else", self.tokens)
+            copytokens = list(self.tokens)
+            s = self.createStatement(copytokens)
+            tokensexecuted = s.ececute(skip)
+            self.moveAhead(tokensexecuted)
+            
+        if(self.ConditionIsTrue(self.tokens, outcondition = [])):
+            self.match("then", self.tokens)
+            copytokens = list(self.tokens)
+            s = self.createStatement(copytokens)
+            tokensexecuted = s.execute(skip)
+            self.moveAhead(tokensexecuted)
+            
+            self.match("else", self.tokens)
+            copytokens = list(self.tokens)
+            s = self.createStatement(copytokens)
+            tokensexecuted = s.execute(True)
+            self.moveAhead(tokensexecuted)
+            
+        else:
+            currenttoken = self.getCurrentToken()
+            while(currenttoken != "else"):
+                self.match(currenttoken, self.tokens)
+                currenttoken = self.getCurrentToken()
+            
+            self.match("else", self.tokens)
+            copytokens = list(self.tokens)
+            s = self.createStatement(copytokens)
+            tokensexecuted = s.execute(skip)
+            self.moveAhead(tokensexecuted)
+            
+        return self.resetTokens()
+    
+class While(Statement):
+    
+    def __init__(self, tokens):
+        super(While, self).__init__(tokens)
+        
+    def execute(self, skip):
+        self.match("while", self.tokens)
+        conditiontokens = []
+        conditionistrue = self.ConditionIsTrue(self.tokens, conditiontokens)
+        
+        self.match("do", self.tokens)
+
+        tokensexecuted = None
+        
+        while(conditionistrue):
+            copytokens = list(self.tokens)
+            s = self.createStatement(copytokens)
+            tokensexecuted = s.execute(skip)
+            copytokens = list(conditiontokens)
+            conditiontokens = None
+            conditiontokens = []
+            conditionistrue = self.ConditionIsTrue(copytokens, conditiontokens)
+            size = len(self.executedtokens)
+            
+            i = size - 1
+            while(i >= size - len(conditiontokens)):
+                self.executedtokens.pop(i)
+                i -= 1
+            
+        self.moveAhead(tokensexecuted)
         return self.resetTokens()
