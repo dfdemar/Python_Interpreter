@@ -1,19 +1,9 @@
 from Statement import ProgramStatement
+from TokenHandler import TokenHandler
 
-lines = []
-scan = open("C:/David/School/prog3.txt", "r")
-
-for text in scan:
-    lines.extend(text.lower().split())
-scan.close()
-    
-tokens = []
-    
-for text in lines:
-    if(";" not in text):
-        tokens.extend(text.split())
-        
-print tokens
+filename = "C:/David/School/prog3.txt"
+t = TokenHandler()
+tokens = t.create_Tokens(filename)
 
 program = ProgramStatement(tokens)
 program.execute(False)

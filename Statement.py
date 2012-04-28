@@ -88,7 +88,6 @@ class Statement(object):
             raise ParserException("Unexpected token: " + token)
         
     def resetTokens(self):
-        #del self.tokens[:]
         self.tokens = self.executedtokens
         tokenSize = len(self.executedtokens)
         self.executedtokens = None
@@ -194,6 +193,8 @@ class Assignment(Statement):
                 currenttoken = self.getCurrentToken()
                 if not skip:
                     operand = t.readTokenValue(currenttoken)
+                    if operand == 0:
+                        raise ParserException("Can't divide by zero.")
                     variablevalue /= operand
                     TokenHandler.variables[variablebeingassigned] = variablevalue
                 self.match(currenttoken, self.tokens)

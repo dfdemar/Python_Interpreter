@@ -5,6 +5,21 @@ import VariableException
 class TokenHandler(object):
 
     variables = {}
+    
+    def create_Tokens(self, filename):
+        lines = []
+        scan = open(filename, "r")
+        for text in scan:
+            lines.extend(text.lower().split())
+        scan.close()
+    
+        tokens = []
+    
+        for text in lines:
+            if(";" not in text):
+                tokens.extend(text.split())
+
+        return tokens
 
     def isVariable(self, token):
         return (re.match(r'[a-zA-Z]', token) and len(token) == 1)
