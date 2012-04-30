@@ -18,8 +18,7 @@ class TokenHandler(object):
         scan.close()
       
         for text in lines:
-            if(";" not in text):
-                self.tokens.extend(text.split())
+            self.tokens.extend(text.split())
     
     def getCurrentToken(self):
         return self.tokens[0]
@@ -100,5 +99,5 @@ class TokenHandler(object):
         return tokenSize
     
     def moveAhead(self, numberofElements):
-        for index in range(numberofElements):
+        for i in range(numberofElements):
             self.match(self.getCurrentToken(), self.tokens)

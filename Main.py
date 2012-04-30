@@ -1,7 +1,7 @@
 from Statement import ProgramStatement
 from TokenHandler import TokenHandler
 
-filename = "C:/David/School/prog3.txt"
+filename = "prog1.txt"
 tokens = []
 t = TokenHandler(tokens)
 t.create_Tokens(filename)

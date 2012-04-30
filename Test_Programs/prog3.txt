@@ -1,0 +1,19 @@
+program a
+
+begin
+
+x := 1 ;
+if x < 10 then
+  while x < 12 do
+  begin
+    x := x + 1 ;
+    print x ;
+  end
+else
+  y := 4 ;
+  
+print x ;
+
+print y ;
+
+end

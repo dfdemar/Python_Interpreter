@@ -1,0 +1,5 @@
+program a 
+begin
+x := 1 ;
+print x
+end

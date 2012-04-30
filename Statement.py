@@ -31,7 +31,7 @@ class Statement(object):
             return w
         
         else:
-            raise ParserException('Reserved word \'end\' expected. Got \'' + currenttoken + '\' instead.')
+            raise ParserException('\';\' expected. Got \'' + currenttoken + '\' instead.')
 
     def execute(self, skip):
         raise NotImplementedError("Subclass must implement abstract method")
@@ -63,13 +63,19 @@ class CompoundStatement(Statement):
     def execute(self, skip):     
         self.t.match("begin", self.t.tokens)
         currenttoken = self.t.getCurrentToken()
+        condition = True
         
-        while currenttoken != "end":
+        while condition == True:
             copytokens = list(self.t.tokens)
             currentstatement = self.createStatement(copytokens)
             tokensexecuted = currentstatement.execute(skip)
             self.t.moveAhead(tokensexecuted)
             currenttoken = self.t.getCurrentToken()
+            if currenttoken == ";":
+                condition = True
+                self.t.match(";", self.t.tokens)
+            else:
+                condition = False
             
         self.t.match("end", self.t.tokens)
         return self.t.resetTokens()
@@ -146,7 +152,7 @@ class Print(Statement):
         self.t.match("print", self.t.tokens)
         nexttoken = self.t.getCurrentToken()
         if not skip:
-            print self.t.readTokenValue(nexttoken)
+            print(self.t.readTokenValue(nexttoken))
         self.t.match(nexttoken, self.t.tokens)
         return self.t.resetTokens()
     
